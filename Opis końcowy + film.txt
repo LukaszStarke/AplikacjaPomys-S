@@ -1,0 +1,322 @@
+Nazwa Projektu: Aplikacja sklepu muzycznego
+Film prezentacja/opis: https://www.youtube.com/watch?v=qMaJzd2k7uo
+
+Moja aplikacja sklepu muzycznego poczπtkowo by≥a tworzona w technologii WPF nastÍpnie za zgoda Grupy .Net zmieniona na 
+Windows Form Aplication (ze wzglÍdÛw lepszego dopasowania technologii do aplikacji zarzπdzania magazynem/sklepem).
+Aplikacja "Music store application" po≥πczona jest z lokalna bazπ danych w programie SQL server managment studio 2012.
+
+Jest to moja pierwsza powaøna aplikacja, ale licze øe mÛj projekt zostanie pozytywnie rozpatrzony gdyø zrobi≥em o wiele wiecej funkcjonalnoúci niø mia≥em
+w opisie wstÍpnym :)
+
+FunkcjonalnoúÊ aplikacji [najwaøniejsze]:
+1) MoøliwoúÊ zalogowania poprzez has≥o i login.
+2) MoøliwosÊ dodania produktu na stan sklepu.
+3) MoøliwosÊ usuniÍcia produktu ze stanu sklepu.
+4) MoøliwoúÊ edytowania produktu na stanie sklepu.
+5) Wyúwietlanie wszystkich produktÛw na stanie sklepu.
+6) MoøliwoúÊ dodania zdjÍÊ do kaødego produktu.
+7) MoøliwoúÊ wyúwietlenia zdjÍÊ kaødego produktu.
+8) MoøliwosÊ dodania zamÛwienia do sklepu.
+9) MoølwoúÊ usuniÍcia zamÛwienia.
+10) MoøliwoúÊ edytowania zamÛwienia.
+11) MoøliwoúÊ sprzedania produktu.
+12) MoøliwoúÊ generowania prostego rachunku.
+13) MoøliwoúÊ drukowania paragonu z poziomu aplikacji.
+14) MoøliwoúÊ wyúwietlenia wszystkich zamÛwieÒ.
+15) Wyszukiwanie produktu ze wzglÍdu na kaødy parametr.
+16) Wyszukiwanie zamÛwienia ze wzglÍdu na kaødy parametr.
+17) Wyszukiwanie sprzedanego produktu ze wzglÍdu na kaødy parametr.
+18) MoøliwoúÊ generowania kodu kreskowego
+19) MoøliwoúÊ drukowania paragonu z poziomu aplikacji.
+20) Wyúwietlenie i wyszukiwanie kaødego dnia i wartoúci pieniÍønej jaka zosta≥a uzyskana.
+21) Wyswietlenie kaødego miesiπca danego roku i jego wyszukiwanie, wyúwietlenie wartoúci sprzedanej, wartoúci przeznaczonej na zamÛwienia oraz ca≥kowitego przychÛdu.
+
+Uøyte technologie
+Hermetyzacja
+Zastosowanie siÍ wedle moøliwoúci do zasady aby metody nie przekracza≥y jednego ekranu (wyjπtki to metody z kwerendami z sql typu insert)
+
+Uøyte NuGet package :
+Zen Barcode rendering Framework (do generowania kodu kreskowego)
+ 
+Inne rzeczy warte wspomnienia:
+Po≥πczenie z lokalna baza SQL z pozycji server explorer
+Uøywanie pe≥nych kwerend SQL
+Wszystkie wpisywane wartoúci lub inne miejsca w ktÛrych aplikacja moøe siÍ "wysypaÊ" zabezpieczone sπ blokiem (try, catch)
+Dodatkowo ustawiona zosta≥a blokada wpisywanych wartoúci np. do texboxÛw typu ID Produktu moøna wpisaÊ jedynie wartoúci numeryczne
+
+
+
+Pierwszym rzÍczπ jakπ zostajemy powitani po odpaleniu aplikacji jest okienko logowania, gdzie po prawid≥owym wpisaniu nazwy uøytkownika "User" oraz has≥a "Password"
+zostajemy zalogowani do g≥ownego okna aplikacji.
+
+
+Opis kodu Login.cs
+Kod opisany w filmie
+
+
+Opis kodu StoreProducts.cs (Zarzπdzanie produktami na sklepie)
+
+Juø przy samym odpalaniu okienka wywo≥ywana jest metoda LoadData() ktÛra wype≥nia obiekt DataGridView odpowiednimi rekordami z bazy danych
+
+public StoreProducts()
+        {
+            InitializeComponent();
+            LoadData();
+        }
+
+Metoda dodania rekordu private void AddButton_Click 
+Inicjowana jest poprzez klikniÍcie przycisku ADD, na samym poczπtku metody znajduje siÍ warunek if 
+jeøeli ktÛrykolwiek z pÛl tekstowych (textbox) zostanie pusty, pojawi siÍ nam b≥πd ktÛry poprosi nas o wype≥nienie
+wszystkich informacji (jedynie nie obowiπzkowe to dodanie/za≥adowanie zdjÍcia).
+jeøeli wszystkie textboxy sπ wype≥nione uøywajπc nowego po≥πczenia SqlConnetion nastÍpuje otworzenie po≥πczenia nastepnie uøywajπc
+nowostworzonego obiektu SqlCommand
+nastÍpuje warunek ktÛry uøywa metody IfProductExists oraz con (czyli po≥πczenia z bazπ danych) i textboxa odpowiedzialnego za ID produktu, jeøeli produkt
+pod wspisywanym w texboxie ID istnieje juø w bazie pojawi siÍ b≥πd mÛwiπcy iø taki rekord juø istnieje. Jeøeli nie ma rekordu z danym ID w bazie nastÍpuje 
+ustawienie typu w≥aúciwego zapytania newCmd.CommandType = CommandType.Text; W zaleønoúci czy chcemy za≥adowaÊ obrazek produktu zapytnie CommandText 
+rozrÛønia sie na kwerende zawierajπca wartoúÊ Image lub nie zawierajπca tej wartoúci. Przy kazdym wysy≥anym zapytaniu do bazy danych zawar≥em bloki "try catch"
+ktÛre uniemoøliwiπ "wyrzuceniu" z programu np. gdy wpiszemy zbyt duøa wartoúÊ ktÛra nie zmieúci siÍ w danym polu tabeli bazy.
+Do zapisu zdjÍcia do bazy wykorzystuje biblioteke System.IO, tworzony jest nowy obiekt MemoryStream nastÍpnie zaladowane wczesniej zdjÍcie
+z pictureboxa wysy≥ane sπ do bazy jako wartoúci binarne. Kaødy dodany parametr pod ktÛry zapisujemy dana wartoúÊ jest konwertowany na kompatibylne
+typy danych C# na SQl (np. Int64 = BigInt). NastÍpnie nastÍpuje wykonanie kwerendy w bazie danych 
+zamkniÍcie po≥aczenia, pojawi siÍ nam wiadomoúc o poprawnym dodaniu rekordu oraz ponowne za≥adowanie danych (rekordÛw).
+
+Metoda IfProductExists 
+Sprawdza czy wpisywane przez nas ID znajduje siÍ juø w bazie analogicznie jak wyøej wysy≥ana jest i wykonywana kwerenda select ktÛra znajduje
+rekord o takim samym ID co wpisany w naszym polu tekstowym jeøeli wystÍpuje dany rekord (wiÍkszy od 0) to zwracana jest wartoúÊ true; jeøeli nie to wartoúÊ false;
+
+Metoda LoadData 
+Nawiπzuje po≥πczenie z bazπ danych, wybiera wszystkie rekordy z danej tabeli z bazy, wype≥nia obiekt DataTable, oraz czyúci element DataGridView 
+z poprzednich rekordÛw (odúwierza). W metodzie znajduje siÍ teø pÍtla Foreach ktÛra dla kaødej wczeúniej utworzonej kolumny w ProductsGridView dodaje odpowiednie
+rekordy z bazy.
+
+Metoda ProductsGrindView_MouseClick 
+Inicjowana jest przez klikniÍcie na dany rekord w elemencie ProductsGridView wszystkie dane ID Product name itp sπ przepisywane do
+textBoxÛw umoøliwia to np szybsza edycje produktÛw, rÛwnieø w zaleønoúci wystÍpowania zdjÍcia pojawia siÍ ono w pictureBoxie.
+
+Metoda DeleteButton_Click 
+inicjowana przez przyciúniecie przycisku Delete usuwa zaznaczony lub wpisany rekord w texboxie (o ile istnieje).
+Jeøeli product/rekord istnieje w bloku try po≥πczenie zostaje otwarte, zostaje zapisana kwerenda Delete rekordu o ID takim jak wpisany lub zaznaczony, nastÍpnie 
+kweredna jest wykonywana, po≥πczenie zamkniÍte i wczytywane sπ nowe wartoúci. Jeøeli dany rekord nie istnieje pojawia siÍ odpowiedni komunikat.
+
+Metoda UpdateButton_Clik 
+Inicjowana przez przycisniÍcie przycisku Update analogicznie jak w metodzie AddButton_Click z wyjπtkiem øe polecenie do bazy zamiast
+Add jest Update.
+
+Metoda IDProductBox_KeyPress 
+uniemoølwia wspisanie innych wartoúci niø numerycznych do IDProductBoxa
+
+Metoda ProductQuantityBox_KeyPress 
+uniemoølwia wspisanie innych wartoúci niø numerycznych do ProductQuantityBoxa
+
+Metoda ProductUPriceBox_KeyPress 
+uniemoøliwia wpisanie innych wartoúci niø numerecznych za wyjπtkiem jednego przecinka w ProductUPriceBox
+
+Metoda UploadButton_Click 
+inicjowna jest poprzez klikniÍcie na przycisk "Upload prodcut image" stworzont zostaje nowy obiekt OpenFileDialog
+ktÛry umoøliwia nam przegladanie plikÛw na komputerze w formacie JPG lub PNG lub GIF zapisywana jest lokalizacji zdjÍcia w elemencie picturebox oraz wyswietlana w
+pathBoxie.
+
+Metoda ProductsGrindView_DoubleClick 
+umoøliwia pokazanie powiekszonego zdjÍcia po dwukrotnym klikniÍciu na dany rekord. Jeøeli rekord nie zawiera zdjÍcia
+zostaniemy poinformowani o tym komunikatem b≥edu. Jeøeli w bazie znajduje siÍ zdjÍcie zostaje otworzone okno Picture a ciπg tablicy bajtowej z bazy zamieniony na
+typ obraz (image) w pictureBoxie w nowo otworzonym oknie Picture.
+
+
+
+
+Opis kodu StoreOrders.cs (Zarzπdzanie zamÛwieniami do sklepu)
+
+Zasada dzia≥ania kodu i funkcjonalnoúÊ analogiczna (dodawanie,usuwanie,edycja rekordÛw, automatyczne za≥adowanie rekordami z bazy,sprawdzanie czy rekord istnieje,
+blokada wpisywania wartosci innych niø numerycznych w iloúci zamÛwieÒ itd.)
+jak w StoreProducts.cs za wyjπtkiem braku moøliwoúci dodawania/zapisywania zdjÍÊ produktÛw.
+
+
+
+Opis kodu SellProduct.cs
+
+Inicjowanie SellProduct.cs, 
+powoduje dodawanie z przypisaniem wpisywanych wartoúci (zmiany tekstu) w ProductUnitPriceTxtBox oraz ProductQuantityTxtBox ma to na celu
+dzia≥anie przygotowawcze do pÛüniejszego automatycznego obliczania i wpisywanie ceny calkowitej "TotalSales" do TotalPriceTxtBox w metodzie TextChanged.
+RÛwnieø jak w StoreProducts.cs dane wczytywane sπ od poczπtku odpalenia okienka
+do elementu SellHistoryGridView.
+
+public SellProduct()
+        {
+
+            InitializeComponent();
+            ProductUnitPriceTxtBox.TextChanged += TextChanged;
+            ProductQuantityTxtBox.TextChanged += TextChanged;
+            LoadData();
+
+        }
+
+
+Metoda LoadProducts_Click 
+Za≥adowuje wszystkie produkty do ProductGridView inicjowana jest za pomoca przycisku LoadProducts
+nawiπzywanie jest po≥πczenie z bazπ danych w nowostworzonym obiekcie SqlConnection. NastÍpnie w nowostowrzonym obiekcie SqlAdapter znajduje siÍ kwerenda Sql 
+typu select ktÛra wybiera wszystkie rekordu z tabeli Store z bazy danych sklepu. NastÍpnie tworzony jest obiekt DataTable i wype≥niany rekordami z kwerendy SqlAdapter.
+èrÛd≥o danych ProductDataGrid przypisywane jest obiektowi DataTable.
+NastÍpnie tworzony jest nowy obiekt DataGridViewImageColumn przypisywana jest mu 6 kolumna z ProductGridView. Ustawione jest aby obrazek by≥ rozciπgniÍty oraz 
+w petli foreach dla kaødego rekordu zostaje ustawiona wysokoúÊ 60.
+
+Metody IDProductsTxtBox_TextChanged 
+inicjowana przez wpisywanie tekstu do pola IDProductsTxtBox na samym poczπtku mamy waurnek øe jeøeli ProductGridView nie bedzie 
+zawiera≥ kolumn pojawi siÍ komunikat o za≥adowaniu rekordÛw. Jeøeli rekordy bÍdπ znajdowaÊ siÍ w ProductGridView. W wypadku kiedy ProductGridView zawiera
+jakies rekordy tworzony jest nowy obiekt DataView (umoøliwia on filtrowanie zawartosci tablicy DataTable),
+NastÍpnie rekordy filtrowane sπ wzglÍdem ID produktu, wyszukiwanie ≥aÒcuchodze (substring search).
+NastÍpnie ürÛd≥o elementy ProductDataGridView przypisane jest wynikπ wyszukiwania.
+NastÍpnie tworzony jest nowy obiekt DataGridViewImageColumn przypisywana jest mu 6 kolumna z ProductGridView. Ustawione jest aby obrazek by≥ rozciπgniÍty oraz 
+w iteratorze foreach dla kaødego rekordu zostaje ustawiona wysokoúÊ 60. (analogicznie jak w LoadProduct)
+
+Metoda ProductNameTxtBox_TextChanged 
+analogicznie jak w IDProductsTxtBox_TextChanged z tym øe wyszukiwanie jest po nazwie produktu.
+
+Metoda PrepareButton_Click 
+inicjowana przez klikniÍcie przycisk "Prepare product to sell" na samym poczπtku znajduje siÍ warunek if ktÛry sprawdza czy 
+w ProductGridView znajdujπ siÍ jakieú rekordy jeøeli nie wyúwietli siÍ komunikat b≥Ídu. W przypadku kiedy ProductGridView posiada jakies rekordy 
+do odpowiednich textboxÛw przekopiowywane sπ odpowiednie wartoúci z zaznaczonego rekordu
+
+Metoda SellProductButton_Click 
+analogicznie jak w StoreProduct.cs w metodzie AddButton_Click z wyjπtkiem braku moøliwoúci za≥adowania zdjÍcia.
+Oraz automatyczne odejmowanie wartoúci sprzedawanej danego produktu ze stanu sklepu. Jeøeli chcemy sprzedaÊ wiÍksza iloúÊ danego produktu niø posiadamy
+na stanie sklepu, produkt nie zostanie sprzedany i wyúwietli siÍ nam komunikat b≥Ídu.
+
+W Metodzie TextChanged 
+(w skrÛcie automatycznie mnoøy iloúÊ sprzedawanych rzeczy razy cene jednostkowπ)
+definiowane sπ 2 wartoúci typu double.
+NastÍpuje warunek, jeøeli typ wpisanych wartoúci jest inny od double nic nie jest zwracane.
+Definiowana jest wartosÊ double val 3 jako iloczyn val 1 i val2
+TotalPriceTxtBox.Text przypisywana jest otrzymana wartoúÊ val3
+
+Metoda IfProductExists analogicznie jak w StoreProducts.cs sprawdza czy dany rekord z wpisywanym przez nas ID znajduje siÍ juz w bazie
+
+Metoda LoadData() analgicznie jak w StoreProducts.cs za≥adowuje rekordy do SellHistoryGridView
+
+Metoda ProductGridView_DoubleClick 
+jak w poprzednych oknach inicjowana jest przez podwÛjne klikniÍcie na dany rekord. Jeøeli wartoúÊ kolumny Image
+bedziÍ pusta wyskoczy b≥πd mÛwiπcy o tym iø w tym rekordzie nie znajduje siÍ zdjÍcie.
+jeøeli znajduje siÍ zdjÍcie to analogicznie jak w poprzednio np w StoreProducts.cs otworzy siÍ nam okno Pictures z danych zdjÍciem.
+
+Metoda GenerateBillButton 
+inicjowana przez przycisk "Generate bill"
+Na poczπtku znajdziemy iterator foreach sprawdzajπcy czy okno Bill jest juø otworzone, jeøeli jest po nie mamy moøliwoúci otworzenia go drugi raz
+i jedne otworzone okno zostaje juø zaznaczone (Focus).
+Jeøeli okno Bill nie by≥o juø otworzone to przypisywane sa dane wartosci z SellProduct.cs z SellHistoryGridView do odpowiednych elementÛw typu label w oknie Bill
+DziÍki pÍtli for oraz warunkowi if istnieje moøliwoúÊ przypisania wszystkich zaznaczonych rekordÛw do danego labela np. w labelu ProductName wybrane sπ wszystkie
+nazwy sprzedanych produktÛw z zaznaczonych rekordÛw.
+Na rachunku pojawiajπ siÍ takie elementy jak nazwa sprzedawanych produktÛw iloúÊ cena jednostkowa,nazwa sklepu,aktulana godzina, data,obliczana jest rÛwnieø cena
+ca≥kowita zakupÛw. Trzeba nadmieniÊ iø okno Bill otworzy siÍ dopiero gdy zaznaczymy jakiú rekord z SellHistoryGridView, jeøeli øaden rekord nie zostanie zaznaczony
+pojawi siÍ komunikat b≥Ídu.
+
+Analogicznie jak w StoreProducts.cs i StoreOrders.cs odpowiednie texboxy np ID nie przyjmuja wpisywanie innych wartoúci niø numerycznych
+
+
+
+Opis kodu SearchProducts.cs (Pe≥ne wyszukiwanie wszystkich produktÛw na stanie sklepu)
+
+Metoda ShowAllProductsButton_Click 
+inicjowana jest przez przycisk "Show all products in store" za≥adowuje rekordy z bazy danych do elementu typu DataGridView.
+Tworzony jest nowy obiekt po≥πczenia SqlConnection wraz z odpowiednim ürod≥em do naszej bazy.Tworzony jest nowy obiekt SqlCommand z kwerenda select
+Tworzon jest nowy obiekt DataTable nastÍpnie DataTable wype≥niane jest rekordami wybranymi z kwerendy SqlCommand. RÛwnieø ürod≥o elementu ProductGridView
+przypisane jest do DataTable. NastÍpnie tworzone jest nowy obiekt DataGridViewImageColumn, nastÍpnie obrazki z kolumny 6 sπ rozciπgane do wielkoúci rekordÛw.
+W pÍtli foreach dla kaødego rekordu ustawiona jest wysokoúÊ na 60.
+
+W metodzie SearchPhraseTxtBox_TextChanged
+inicjowana jest poprzez wpisanie tekstu do SearchPhraseTxtBox. Metoda ta na samym poczπtku posiada warunek jeøeli 
+element comboSearch jest rÛwny "null" lub iloúÊ rekordow z ProductGridView jest rÛwna "0", pojawia siÍ komunikat b≥Ídu.
+W wypadku kiedy ProductGridView zawiera
+jakies rekordy i comboSearch nie jest rÛwny "null" tworzony jest nowy obiekt DataView (umoøliwia on filtrowanie zawartosci tablicy DataTable),
+NastÍpnie rekordy filtrowane sπ wzglÍdem wybranego parametru z comboSearch, wyszukiwanie ≥aÒcuchodze (substring search).
+NastÍpnie ürÛd≥o elementy ProductDataGridView przypisane jest wynikπ wyszukiwania.
+NastÍpnie tworzony jest nowy obiekt DataGridViewImageColumn przypisywana jest mu 6 kolumna z ProductGridView. Ustawione jest aby obrazek by≥ rozciπgniÍty oraz 
+w pÍtli foreach dla kaødego rekordu zostaje ustawiona wysokoúÊ 60.
+
+Metoda ProductGridView_DoubleClick 
+umoøliwia pokazanie powiekszonego zdjÍcia po dwukrotnym klikniÍciu na dany rekord. Jeøeli rekord nie zawiera zdjÍcia
+zostaniemy poinformowani o tym komunikatem b≥edu. Jeøeli w bazie znajduje siÍ zdjÍcie zostaje otworzone okno Picture a ciπg tablicy bajtowej z bazy zamieniony na
+typ obraz (image) w pictureBoxie w nowo otworzonym oknie Picture.
+
+Metoda BarCodeButton_Click 
+inicjowana jest przez przycisk "Generate bar code". Na poczπtku mamy pÍtle Foreach w ktÛrej sprawdzane jest czy odpalone jest juø jakieú okienko Bar code
+jeøeli tak to odpalone okiekno pojawia siÍ np gdy jest zminimalizowane (Focus),jeøeli nie by≥o odpalone to pojawia siÍ. NastÍpnie sprawdzane jest czy zaznaczyliúmy
+jakiú rekord z elementu typu dataGridView jeøeli nie pojawi sie komunikat b≥Ídu, jeøeli tak w bloku try inicjowany jest nowy obiekt BarCode 
+(korzysta z zew. biblioteki Zen.Barcode). Jeøeli nie wybraliúmy øadnego rekordu nie moøemy wygenerowaÊ kodu pojawi siÍ komunikat b≥Ídu.
+
+
+
+Opis kodu SearchOrders.cs i SellHistory.cs (Odpowiednio wyszukiwanie zamÛwieÒ, wyszukiwanie historii sprzedaøy)
+
+Analogiczne jak w SearchProducts.cs (z rÛønica braku generowania kodu kreskowego i powiekszenia zdjÍÊ po podwÛjnym klikniÍciu)
+
+
+
+Opis kodu DailySales.cs (Pokazuje i pozwala wyszukaÊ wartoúÊ sprzedaøy danego dnia)
+
+Analogiczne jak MonthlyIncome.cs opisany na za≥πczonym filmiku
+
+
+
+Opis kodu BarCode.cs (Generowanie kodu kreskowego)
+
+W metodzie IDProductTxtBox_TextChanged
+w bloku try inicjowany jest nowy obiekt Zen.Barcode.Code128BarcodeDraw (korzystam z NuGet package Zen Barcode rendering Framework (do generowania kodu kreskowego))
+NastÍpnie po≥oøenie nowogenerowanego kodu kreskowego ustawiane jest na úrodku elementu pictureBox.
+NastÍpnie tworzenie nowego kodu kreskowego zostaje ustawione na wpisywane wartoúci z IDProductTxtBox.Text oraz wysokoúÊ kodu kreskowego ustawiona na 100
+
+Metoda PrintButton_Click
+Na poczπtku tworzony jest nowy obiekt PrintDocument (odpowiada za wysy≥anie danych wyj. do drukarki)
+nastÍpnie przy uøyciu PrintDocument strona drukowana dodawana jest z przypisaniem do metody pomocniczej Doc_PrintPage
+Tworzony jest nowy obiekt PrintDialog (Wywo≥uje standardowe okno dialogowe drukowania systemu Microsoft Windows)
+Przy uøyciu PrintDialog pobierana lub ustawiana jest wartoúÊ wskazujπcπ dokument wydruku uøywana do uzyskania ustawieÒ drukarki
+NastÍpnie jest waarunek ze jeøeli w nowo powsta≥ym okienku drukowania klikniemy ok to dokument zostaje wydrukowany.
+
+Metoda Doc_PrintPage
+Tworzony jest nowy obietk Bitmap w ktÛrym znajdujπ siÍ wartoúci szerokoúci i wysokoúci naszego pictureBoxa w ktÛrym jest kod kreskowy.
+NastÍpnie nasz pictureBox zawierajπcy Kod kreskowy konwentorowany jest poleceniem DrawToBitmap gdzie uøywany jest juø nasz nowostworzony obiekt Bitmap.
+tworzony jest nowy obiekt Rectangle ktÛry zawiera cztery wspÛ≥øÍdne w tym szerokoúÊ i wysokoúÊ pictureBoxa.
+Polecenie e.Graphics.DrawImage Rysuje okreúlonπ czÍúÊ okreúlonego obrazu w okreúlonej lokalizacji i o okreúlonym rozmiarze.
+NastÍpnie obiekt obiekt Bitmap zostaje zwolniony z niezarzπdzonych zasobÛw.
+
+Metoda BarCodePictureBox_Paint
+S≥uøy do umiejscowienia wpisanego kodu ID nad naszym wygenerowanym kodem.
+Najpierw uøywany jest nowostwarzany obiekt Font (czcionka ustawiana jest na 14,Arial).
+NastÍpnie polecenie Pobiera lub ustawia tryb renderowania dla tekstu skojarzonego z tπ grafikπ (Graphics.TextRenderingHint).
+Tworzony jest nowy obiekt PointF (lokalizacja tekstu na obrazku).
+Tworzony jest nowy obiekt SizeF (mierzy rozmiar czcionki wpisanej w IDProductTxtBox).
+NastÍpnie ustawione jest po≥oøenie na osi X z uwzglÍdnieniem szerokoúci pictureBoxa i czcionki.
+NastÍpnie ustawione jest po≥oøenie na osi Y z uwzglÍdnieniem wysokosci pictureBoxa i czcionki.
+Na koÒcu rysowany jest okreúlony ciπg tekstowy w okreúlonej lokalizacji przy uøyciu wpisywanego tekstu w IDProductTxtBox, ustawionej czcionki Font, koloru
+czcionki oraz lokalizacji PointF.
+
+
+
+Opis kodu Bill.cs (Generowanie rachunku)
+
+Metoda PrintBill_Click
+Tak samo jak w BarCode.cs w metodzie PrintButton_Click
+
+Metoda Doc_PrintPage
+Analogicznie jak w BarCode.cs, Doc_PrintPage tyle øe ustawione sπ jeszcze marginesy
+
+Przyk≥adowy prosty paragon stworzony jest z elementu typu panel i labeli
+Paragon mozna generowaÊ rownieø dla kilku sprzedanych przedmiotÛw/rekordÛw.
+
+
+Opis kodu StoreApp.cs (G≥owne okno aplikacji w ktÛrym pojawiajπ sie inne okienka)
+
+W metodzie StoreApp_FormClosing (Inicjowanej poprzez przycisniÍcie przycisku wyjúcia z okna StoreApp)
+Otwiera siÍ okienko typu wyjúcia z pytaniem czy uøytkownik napewno chce wyjúÊ z aplikacji.
+Jeøeli wciúniety zostaje przycisk Yes ca≥a aplikacja zostanie zamkniÍta.
+Jeøeli wciúniety zostaje przycisk No aplikacja nie zostaje zamkniÍta.
+
+W metodzie storeProductsToolStripMenuItem_Click 
+Tworzona jest zmienna IsOpen typu Bool i ustawiona jako false.
+NastÍpnie w pÍtli foreach sprawdzana jest kaøde odpalone okienko.
+W warunki if jeøeli nazwa okienka to "StoreProducts"
+zmienna IsOpen przypisywana jest jako true oraz okieno StoreProducts ustawione jest na fokus 
+Jeøeli zmienna IsOpen jest false
+Otwierany jest nowe okienko StoreProducts (w pukncie úrodka ekranu, ograniczone g≥Ûwnym oknem StoreApp)
+
+Dalej tworzone sπ analogiczne (te same) metody jak storeProductsToolStripMenuItem_Click dla wszystkich okienek ktÛre moøemy kliknaÊ w gÛrnym pasku StoreApp
+
+
